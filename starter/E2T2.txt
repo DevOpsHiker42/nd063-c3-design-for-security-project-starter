@@ -1,3 +1,161 @@
 Research and analyze which of the vulnerabilities appear to be related to the code that was deployed for the environment in this project.
+=========================================================================================================================================
+1. Amazon Inspector reported that a large number (79) of ports were accessible from the Internet.
+   This is larger than needed and is due to the settings on security group WebAppSG which was created by the project IaC.
+
+2. AWS Config identified the following non-compliant rules that relate to resources deployed by the project IaC:
+
++------------------------------------------------------------------+--------------------------------------------------+
+| Rule Name                                                        | Non-compliant Project Resource(s)                |
++------------------------------------------------------------------+--------------------------------------------------+
+| securityhub-elb-deletion-protection-enabled-ac9ad247             | c1-web-service-alb                               |
+|                                                                  |                                                  |
+| securityhub-encrypted-volumes-ed3fcbab                           | Web Service Instance - C3                        |
+|                                                                  | Attack Instance - C3                             |
+|                                                                  |                                                  |
+| securityhub-elb-logging-enabled-2c510707                         | c1-web-service-alb                               |
+|                                                                  |                                                  |
+| securityhub-ec2-security-group-attached-to-eni-periodic-e65adc76 | no-ingress-sg                                    |
+|                                                                  | WebAppSG                                         |
+|                                                                  | AppLoadBalancerSG                                |
+|                                                                  | AttackInstanceSG                                 |
+|                                                                  |                                                  |
+| securityhub-ec2-instance-managed-by-ssm-6021dade                 | Web Service Instance - C3                        |
+|                                                                  | Attack Instance - C3                             |
+|                                                                  |                                                  |
+| securityhub-cloudformation-stack-notification-check-377763f5     | c3-app, c3-s3, c3-vpc                            |
+|                                                                  |                                                  |
+| securityhub-ec2-imdsv2-check-1d9f995a                            | Web Service Instance - C3                        |
+|                                                                  | Attack Instance - C3                             |
+|                                                                  |                                                  |
+| securityhub-alb-http-drop-invalid-header-enabled-b41d3377        | c1-web-service-alb                               |
+|                                                                  |                                                  |
+| securityhub-alb-http-to-https-redirection-check-5438cea9         | c1-web-service-alb                               |
+|                                                                  |                                                  |
+| securityhub-nacl-no-unrestricted-ssh-rdp-75bf7f47                | Network ACL for 'moms-kithen-web-service' VPC    |
+|                                                                  |                                                  |
+| securityhub-subnet-auto-assign-public-ip-disabled-cec22331       | moms-kithen-web-service Public Subnet (AZ1)      |
+|                                                                  | moms-kithen-web-service Public Subnet (AZ2)      |
+|                                                                  |                                                  |
+| securityhub-vpc-sg-restricted-common-ports-10247017              | AttackInstanceSG                                 |
+|                                                                  | WebAppSG                                         |
+|                                                                  |                                                  |
+| securityhub-vpc-sg-open-only-to-authorized-ports-6f41a9c2        | AttackInstanceSG                                 |
+|                                                                  | WebAppSG                                         |
+|                                                                  |                                                  |
+| securityhub-service-vpc-endpoint-enabled-999fb168                | moms-kithen-web-service                          |
+|                                                                  |                                                  |
+| securityhub-restricted-ssh-d606abb6                              | AttackInstanceSG                                 |
+|                                                                  | WebAppSG                                         |
+|                                                                  |                                                  |
+| securityhub-restricted-rdp-7a3f6c1a                              | WebAppSG                                         |
+|                                                                  |                                                  |
+| securityhub-s3-bucket-ssl-requests-only-dc005348                 | cand-c3-free-recipes-<account>                   |
+|                                                                  | cand-c3-secret-recipes-<account>                 |
+|                                                                  | cand-c3-vpc-flow-logs-<account>                  |
+|                                                                  | config-bucket-<account>                          |
+|                                                                  |                                                  |
+| securityhub-s3-bucket-level-public-access-prohibited-d4d22d1b    | cand-c3-free-recipes-<account>                   |
+|                                                                  | cand-c3-secret-recipes-<account>                 |
+|                                                                  | cand-c3-vpc-flow-logs-<account>                  |
+|                                                                  |                                                  |
+| securityhub-s3-bucket-logging-enabled-86adccc6                   | cand-c3-free-recipes-<account>                   |
+|                                                                  | cand-c3-secret-recipes-<account>                 |
+|                                                                  | cand-c3-vpc-flow-logs-<account>                  |
+|                                                                  | config-bucket-<account>                          |
+|                                                                  |                                                  |
+| securityhub-s3-event-notifications-enabled-27ec78f1              | cand-c3-free-recipes-<account>                   |
+|                                                                  | cand-c3-secret-recipes-<account>                 |
+|                                                                  | cand-c3-vpc-flow-logs-<account>                  |
+|                                                                  | config-bucket-<account>                          |
++------------------------------------------------------------------+--------------------------------------------------+
+
+3. AWS Security Hub identified the following issues:
+
+a) AWS Foundational Security Best Practices
+
++---------+-----------------------------------------------------------------------------------------------------------+
+| ID      | Title                                                                                                     |
++---------+-----------------------------------------------------------------------------------------------------------+
+| EC2.10  | Amazon EC2 should be configured to use VPC endpoints that are created for the Amazon EC2 service          |
+| EC2.15  | EC2 subnets should not automatically assign public IP addresses                                           |
+| EC2.18  | Security groups should only allow unrestricted incoming traffic for authorized ports                      |
+| EC2.19  | Security groups should not allow unrestricted access to ports with high risk                              |
+| EC2.21  | Network ACLs should not allow ingress from 0.0.0.0/0 to port 22 or port 3389                              |
+| EC2.22  | Unused EC2 security groups should be removed                                                              |
+| EC2.3   | Attached EBS volumes should be encrypted at-rest                                                          |
+| EC2.8   | EC2 instances should use Instance Metadata Service Version 2 (IMDSv2)                                     |
+| EC2.9   | EC2 instances should not have a public IPv4 address                                                       |
+| ELBv2.1 | Application Load Balancer should be configured to redirect all HTTP requests to HTTPS                     |
+| ELB.4   | Application load balancer should be configured to drop http headers                                       |
+| ELB.5   | Application and Classic Load Balancers logging should be enabled                                          |
+| ELB.6   | Application Load Balancer deletion protection should be enabled                                           |
+| S3.1    | S3 Block Public Access setting should be enabled                                                          |
+| S3.11   | S3 buckets should have event notifications enabled                                                        |
+| S3.5    | S3 buckets should require requests to use Secure Socket Layer                                             |
+| S3.8    | S3 Block Public Access setting should be enabled at the bucket-level                                      |
+| S3.9    | S3 bucket server access logging should be enabled                                                         |
+| SSM.1   | EC2 instances should be managed by AWS Systems Manager                                                    |
++---------+-----------------------------------------------------------------------------------------------------------+
+
+b) CIS (Center for Internet Security) AWS Foundations Benchmark
+
++----------+----------------------------------------------------------------------------------------------------------+
+| ID       | Title                                                                                                    |
++----------+----------------------------------------------------------------------------------------------------------+
+| CIS.4.1  | Security groups should not allow ingress from 0.0.0.0/0 to port 22                                       |
+| CIS.4.2  | Ensure no security groups allow ingress from 0.0.0.0/0 to port 3389                                      |
++----------+----------------------------------------------------------------------------------------------------------+
+
 
 Bonus - provide recommendations on how to remediate the vulnerabilities.
+========================================================================
+1. The Web Application listens on port 5000, so this and the SSH port (for maintenance activities) are all that are required for inbound traffic.
+   The HTTP and 'All traffic' inbound rules can therefore be removed from security group WebAppSG.
+
+2. Security group no-ingress-sg is unused and should be removed.
+
+3. Rules (with numbers < 100) should be added to the network ACL for the 'moms-kithen-web-service' VPC to deny ports 22 (SSH) and 3389 (RDP).
+
+4. The following settings should be enabled on load balancer c1-web-service-alb:
+   - deletion_protection
+   - routing.http.drop_invalid_header_fields
+   - logging (access_logs.s3.enabled, access_logs.s3.bucket and access_logs.s3.prefix settings)
+
+5. Turn off auto-assigning of public IP addresses for the public subnets:
+   moms-kithen-web-service Public Subnet (AZ1)
+   moms-kithen-web-service Public Subnet (AZ2)
+
+6. Put EC2 instance 'Web Service Instance - C3' under control of AWS Systems Manager
+
+7. EBS volume attached to EC2 instance 'Web Service Instance - C3' should be encrypted at-rest
+
+8. Update EC2 instance 'Web Service Instance - C3' to use IMDSv2 for providing instance metadata
+
+9. S3 Block Public Access setting should be enabled for the following buckets and S3 endpoints used instead where appropriate:
+   cand-c3-free-recipes-<account>
+   cand-c3-vpc-flow-logs-<account>
+
+10. The following S3 buckets should require requests to use Secure Socket Layer (SSL):
+    cand-c3-free-recipes-<account>
+    cand-c3-secret-recipes-<account>
+    cand-c3-vpc-flow-logs-<account>
+    config-bucket-<account>
+
+11. The following S3 buckets should have access logging enabled:
+    cand-c3-free-recipes-<account>
+    cand-c3-secret-recipes-<account>
+    cand-c3-vpc-flow-logs-<account>
+    config-bucket-<account>
+
+12. The following S3 buckets should have event notifications enabled:
+    cand-c3-free-recipes-<account>
+    cand-c3-secret-recipes-<account>
+    cand-c3-vpc-flow-logs-<account>
+    config-bucket-<account>
+
+13. Set up SNS notifications to alert on events for CloudFormation stacks c3-app, c3-s3, c3-vpc
+
+14. Consider changing to HTTPS instead of HTTP for inbound web traffic.
+
+<END>

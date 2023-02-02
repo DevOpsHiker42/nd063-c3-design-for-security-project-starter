@@ -1,5 +1,10 @@
 Based on the architecture diagram, and the steps you have taken so far to upload data and access the application web service, identify at least 2 obvious poor practices as it relates to security.  Include justification.
 
 # Poor practice 1
+WebAppSG security group is too open if it allows inbound traffic directly from an internet gateway.
+It should only allow inbound traffic from the Application Load Balancer.
+Even better would be to also move the Web Service Instance into the private subnet and use a NAT gateway if required to handle outbound traffic.
 
 # Poor practice 2
+There should be no blanket public access to the secret recipe bucket.
+Access should only be via a trusted user assuming an IAM role with permissions to the bucket.
