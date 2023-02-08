@@ -1,5 +1,13 @@
 
-
 # Identify 2-3 changes that can be made to our environment to prevent an ssh brute force attack from the internet.
 
+1. WebAppSG security group should be modified to only allow inbound traffic coming from the Application Load Balancer on port 5000.
+   N.B. AWS Systems Manager Session Manager can be used for managing the server without the need to have the SSH port (22) open.
+2. Update VPC Network ACL to deny inbound traffic on port 22 (except for specific known IP addresses if required).
+3. Move the Web Service Instance into the private subnet and use a NAT gateway to handle outbound traffic.
+
+
 # Neither instance should have had access to the secret recipes bucket, in the even that instance API credentials were compromised how could we have prevented access to sensitive data.
+
+- An IAM role could be created with permissions to the bucket, such that trusted users can assume the role when they need to access the bucket.
+  All other public access should be blocked.
