@@ -1,3 +1,33 @@
 # Describe GuardDuty findings that were detected related to the brute force attack
+----------------------------------------------------------------------------------
+
+- Despite many attempts, GuardDuty seemingly failed to detect the brute force attack.
+- Looking on Udacity Knowledge, this appears to be a common problem - see e.g.
+  https://knowledge.udacity.com/questions/784769
+  https://knowledge.udacity.com/questions/741607
+- Following the suggestion at https://knowledge.udacity.com/questions/784769, I verified that the SSH commands were reaching the web server using:
+  grep "Failed password" /var/log/auth.log
+  The screenshot E3T1_auth_log.png shows the output from running this command
+  N.B. Need to expand comments in the knowledge article to see the suggestion
+- I tried various things such as:
+  * leaving the attack running for several hours. I worked around SSH session timeouts by running the hydra command using nohup e.g.
+    nohup hydra -l ubuntu -P rockyou.txt ssh://ec2-23-21-139-0.compute-1.amazonaws.com &
+    Sample output shown in screenshot: E3T1_hydra_nohup.png
+  * waiting for several hours before checking GuardDuty
+  * changing 'Frequency for updated findings' setting, albeit this should not affect detection
+  * generating sample findings to check GuardDuty enabled
+  * recreating the detector
+  * attacking the web server via both its public DNS and IP address as it looked from traceroute that traffic to the former was being routed internally
+    (see screenshot: E3T1_traceroute.png)
+  * verifying that GuardDuty is enabled and configured correctly for the correct region and account via the AWS CLI, using commands:
+      aws guardduty list-detectors --profile default --region us-east-1
+    then:
+      aws guardduty get-detector --detector-id <id> --profile default --region us-east-1
+    (see example output in screenshot: E3T1_detector.png)
 
 # Research the AWS Guard Duty documentation page and explain how GuardDuty may have detected this attack - i.e. what was its source of information.
+---------------------------------------------------------------------------------------------------------------------------------------------------
+
+GuardDuty detects EC2 SSH brute force attacks via the VPC logs - see:
+https://docs.aws.amazon.com/guardduty/latest/ug/guardduty_finding-types-ec2.html#unauthorizedaccess-ec2-sshbruteforce
+

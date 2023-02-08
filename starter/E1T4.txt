@@ -3,6 +3,7 @@ Based on the architecture diagram, and the steps you have taken so far to upload
 # Poor practice 1
 WebAppSG security group is too open if it allows inbound traffic directly from an internet gateway.
 It should only allow inbound traffic from the Application Load Balancer.
+N.B. AWS Systems Manager Session Manager can be used for managing the server without the need to have the SSH port (22) open.
 Even better would be to also move the Web Service Instance into the private subnet and use a NAT gateway if required to handle outbound traffic.
 
 # Poor practice 2
