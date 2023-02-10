@@ -1,0 +1,11 @@
+Additional Hardening
+--------------------
+
+The following changes have been applied in c3-app_solution.yml:
+  - InstanceRolePolicy-C3 updated to restrict S3 access to read access for free recipes bucket only
+  - WebAppSG updated to only allow ingress on port 5000 from AppLoadBalancerSG
+    N.B. AWS Systems Manager can be used to manage EC2 instances without the need for SSH port 22 to be open.
+
+The following changes have been applied in c3-s3_solution.yml:
+  - Versioning turned on for S3BucketRecipesFree and S3BucketRecipesSecret, to protect against ransomware attacks etc.
+  - Public access disabled for free recipes and VPC flow logs buckets.
