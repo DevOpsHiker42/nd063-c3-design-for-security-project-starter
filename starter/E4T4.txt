@@ -1,8 +1,25 @@
 
 # What additional architectural change can be made to reduce the internet facing attack surface of the web application instance.
 
+- Move the Web Service Instance into the private subnet and use a NAT gateway if required to handle outbound traffic.
+- Add rules (with numbers < 100) to the network ACL for the 'moms-kithen-web-service' VPC to deny ports 22 (SSH) and 3389 (RDP).
+  EC2 instances could be managed via AWS Systems Manager to avoid the need to have port 22 open.
+- Change to HTTPS instead of HTTP for inbound web traffic.
+- Enable the setting routing.http.drop_invalid_header_fields on load balancer c1-web-service-alb.
+
 # Assuming the IAM permissions for the S3 bucket are still insecure, would creating VPC private endpoints for S3 prevent the unauthorized access to the secrets bucket.
+
+Unauthorized access to the secrets bucket was from an attack instance within the VPC, so VPC private endpoints on their own would not prevent this.
+Using a VPC private endpoint on the secrets bucket could potentially be very beneficial as part of a wider security strategy, but would need to be combined with:
+- IAM permissions
+- An alternative method for privileged users to be able to access the secret recipes from outside the VPC, assuming public access was being turned off in favour of private endpoints.
 
 # Will applying default encryption setting to the s3 buckets encrypt the data that already exists?
 
+No, updating this setting only affects new objects.
+Starting January 5, 2023, all new object uploads to Amazon S3 will be automatically encrypted - see:
+https://docs.aws.amazon.com/AmazonS3/latest/userguide/default-bucket-encryption.html
+
 # What would happen if the original cloud formation templates are applied to this environment.
+
+Any manually-applied changes ('configuration drift') will be lost as the resources will return to their configurations as specified in the templates.

@@ -116,6 +116,7 @@ Bonus - provide recommendations on how to remediate the vulnerabilities.
 2. Security group no-ingress-sg is unused and should be removed.
 
 3. Rules (with numbers < 100) should be added to the network ACL for the 'moms-kithen-web-service' VPC to deny ports 22 (SSH) and 3389 (RDP).
+   N.B. This may require the use of AWS Systems Manager for maintaining EC2 instances.
 
 4. The following settings should be enabled on load balancer c1-web-service-alb:
    - deletion_protection
