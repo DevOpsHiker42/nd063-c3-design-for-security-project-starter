@@ -1,13 +1,18 @@
 # Identify tools that will allow you to do the following:
 
 ## Scan infrastructure as code templates
-
+Trend Micro Cloud One Conformity has CloudFormation Template Scanning
 ### Example vulnerability
+Unrestricted ICMP access to EC2
 
 ##Scan AMI’s or containers for OS vulnerabilities
-
+Snyk
 ### Example vulnerability
+Image contains package vulnerable to command injection
 
 ##Scan an AWS environment for cloud configuration vulnerabilities
-
+Amazon Inspector
 ### Example vulnerability
+Ports unnecessarily open to the Internet
+
+
